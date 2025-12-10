@@ -1,3 +1,13 @@
+
+ <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
 <section id="hero" class="hero section">
     <div class="hero-bg">
       <img src="assets/img/Picture1.jpg" alt="">
@@ -6,6 +16,7 @@
             <div class="card bg-light mb-3">
                 <div class="card-body">
     <form action="check_registration.php" method="POST">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         Registration username:<br>
         <input type="text" name="username"><br>
         Registration password:<br>
