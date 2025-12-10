@@ -1,45 +1,33 @@
 name: SAST
-
 on:
-
-workflow_dispatch:
-
-workflow_call:
-
-pull_request:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
 
 jobs:
-
-semgrep_actions:
-
-permissions: write-all
-
-name: Semgrep
-
-runs-on: ubuntu-latest
-
-container:
-
-image: returntocorp/semgrep
-
-steps:
-
-- name: Checkout
-
-uses: actions/checkout@v3
-
-- name: Run semgrep analysis (blocking mode)
-
-run: semgrep scan --sarif --sarif-output=semgrep.sarif --error
-
-#semgrep scan --sarif --sarif-output=semgrep.sarif || true (non blocking mode)
-
-- name: Upload SARIF file to GitHub
-
-uses: github/codeql-action/upload-sarif@v3
-
-with:
-
-sarif_file: semgrep.sarif
-
-if: always()
+  semgrep_actions:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    
+    # ✅ Permissions minimales nécessaires
+    permissions:
+      contents: read          # Lire le code source
+      security-events: write  # Uploader les résultats SARIF
+      actions: read          # Lire les métadonnées du workflow
+    
+    container:
+      image: returntocorp/semgrep
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4  # ⬆️ Version plus récente
+      
+      - name: Run semgrep analysis (blocking mode)
+        run: semgrep scan --sarif --sarif-output=semgrep.sarif --error
+        # Mode non-bloquant: semgrep scan --sarif --sarif-output=semgrep.sarif || true
+      
+      - name: Upload SARIF file to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+        if: always()
