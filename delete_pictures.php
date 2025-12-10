@@ -14,9 +14,11 @@ if (!isset ($_SESSION ['username'])){
 else{
     if (isset ($_POST['pictures_name'])){
         $pictures_name = $_POST['pictures_name'];
+
+        $stmt = $connection->prepare("DELETE FROM pictures WHERE pictures_name = ?");
+        $stmt->bind_param("s", $pictures_name);
         
-        $sql2 = "DELETE FROM pictures WHERE pictures_name = '{$pictures_name}'";
-        if (mysqli_query ($connection, $sql2)){
+        if ($stmt->execute()){
             $path = "uploads/" . $pictures_name;
             if (unlink ($path)){
                 echo "Removed picture " . $path . "<br>";
@@ -24,6 +26,7 @@ else{
                 unset ($path);
             }
         }
+        $stmt->close();
     }
     
     $sql1 = "SELECT users.users_username, pictures.pictures_name FROM pictures INNER JOIN users ON pictures.id_users = users.users_id";
